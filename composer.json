@@ -1,7 +1,15 @@
 {
   "name": "dreitier/streamline-authentication",
   "description": "Enterprise authentication for SaaS.",
-  "keywords": ["laravel", "sso", "authentication","multitenancy"],
+  "keywords": [
+    "laravel",
+    "oauth",
+    "socialite",
+    "sso",
+    "authentication",
+    "multitenancy",
+    "multitenant"
+  ],
   "license": "MIT",
   "authors": [
     {
