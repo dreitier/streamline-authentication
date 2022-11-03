@@ -1,6 +1,6 @@
 {
   "name": "dreitier/streamline-authentication",
-  "description": "Enterprise authentication for SaaS.",
+  "description": "Common authentication methods for multi-tenant Laravel apps",
   "keywords": [
     "laravel",
     "oauth",
