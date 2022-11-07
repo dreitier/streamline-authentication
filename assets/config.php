@@ -74,8 +74,9 @@ return [
             'impl' => \Dreitier\Streamline\Authentication\Methods\SelectableUserMethod::class,
             /**
              * Enable this authentication method only if we are in APP_ENV=dev, APP_ENV=e2e, APP_ENV=local or APP_ENV=demo.
+             * Even if you can pass Lambdas as value, don't use it. PHP/Laravel can not serialize that argument. Use any of the helper methods available, like `in_environment`.
              */
-            'enabled' => fn () => StreamlineAuthenticationMethod::isEnvironmentActive(['dev', 'e2e', 'local', 'demo']),
+            'enabled' => 'in_environment:dev,e2e,local,demo',
             /**
              * Find the user behind the principal by this key/column.
              * If your users have to log in with an email address, you have to use the `email` database column.
