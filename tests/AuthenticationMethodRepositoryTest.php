@@ -24,6 +24,7 @@ class AuthenticationMethodRepositoryTest extends TestCase
         config([$ns => [
             'credentials_based_auth' => [
                 'impl' => FormBasedMethod::class,
+                'enabled' => true,
             ],
         ]]);
 
