@@ -56,7 +56,7 @@ return [
              * Just for demonstration purposes. By default, all registered authentication methods are enabled.
              * You can also provide a custom callback function for the authentication method.
              */
-            'enabled' => true,
+            'enabled' => 'in_environment:dev,e2e,local,demo',
             /**
              * Not yet
              */
@@ -124,6 +124,7 @@ return [
              * you can use the `callable($principal)` callback
              */
             'resolve_user_from_route_principal' => null,
+            'enabled' => 'in_environment:dev,e2e,local,demo',
         ],
         /*
         |--------------------------------------------------------------------------
@@ -148,6 +149,7 @@ return [
              * If your driver does not have any specific adapter, you can omit that configuration property.
              */
             'adapter' => AzureDriverAdapter::class,
+            'enabled' => true,
         ],
     ],
     'ui' => [

@@ -37,6 +37,7 @@ class SelectableUserUiDecorator extends UiAuthenticationMethodDecoratorAdapter
 
     public function decorates(): bool
     {
-        return $this->hasAuthenticationMethod(SelectableUserMethod::class);
+        $r = $this->hasAuthenticationMethod(SelectableUserMethod::class);
+        return $r;
     }
 }

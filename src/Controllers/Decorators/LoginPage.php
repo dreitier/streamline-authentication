@@ -17,10 +17,17 @@ class LoginPage implements UiAuthenticationMethodDecorator
     {
     }
 
+    public function getEnabledDecorators(): Collection
+    {
+        return $this->decorators->where(fn($item) => $item->decorates())->sortBy(function ($decorator, $key) {
+            return $decorator->getOrder();
+        });
+    }
+
     public function triggersDefaultRedirection(): bool|string
     {
         // if only one decorator is available
-        if ($this->decorators->count() == 1) {
+        if ($this->getEnabledDecorators()->count() == 1) {
             // retrieve default redirection or false from that one
             return $this->decorators->first()->triggersDefaultRedirection();
         }
@@ -37,9 +44,7 @@ class LoginPage implements UiAuthenticationMethodDecorator
     public function render(): View
     {
         // find active decorators and sort them by order
-        $decorators = $this->decorators->where(fn ($item) => $item->decorates())->sortBy(function ($decorator, $key) {
-            return $decorator->getOrder();
-        });
+        $decorators = $this->getEnabledDecorators();
 
         return Package::view('index', [
             'decorators' => $decorators,

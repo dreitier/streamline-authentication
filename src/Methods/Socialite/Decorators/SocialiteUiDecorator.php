@@ -16,7 +16,6 @@ class SocialiteUiDecorator extends UiAuthenticationMethodDecoratorAdapter
 
     public function triggersDefaultRedirection(): string|bool
     {
-        // for Socialite, we can automatically redirect the user to the OAuth entrypoint if no other authentication method is available.
         if (null !== ($onlySocialiteAuthentication = $this->firstAuthenticationMethod(SocialiteMethod::class))) {
             return $onlySocialiteAuthentication->handover();
         }

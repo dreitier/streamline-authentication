@@ -24,7 +24,7 @@ class LoginEntrypointController
         $decorators = [];
 
         // find all available decorators
-        // TODO: This is clumsy, as every authentication method should have decorator
+        // TODO: This is clumsy, as every authentication method should have a decorator
         foreach (Package::config('ui.decorators') as $decoratorClazz) {
             $decorator = new $decoratorClazz;
 
@@ -35,13 +35,12 @@ class LoginEntrypointController
             $decorators[] = $decorator;
         }
 
-        $config = new LoginPage(collect($decorators));
+        $loginPage = new LoginPage(collect($decorators));
 
-        //
-        if (false !== ($redirectUrl = $config->triggersDefaultRedirection())) {
-            return $redirectUrl;
+        if ($loginPage->getEnabledDecorators()->count() == 1 && (false !== ($redirectUrl = $loginPage->triggersDefaultRedirection()))) {
+            die($redirectUrl);
         }
 
-        return $config->render();
+        return $loginPage->render();
     }
 }

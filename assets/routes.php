@@ -17,7 +17,7 @@ Route::middleware(['web'])
     ->prefix('/sign-in')
     ->group(function () {
         // register routes for socialite
-        StreamlineAuthenticationMethod::isEnabled(SocialiteMethodManager::hasAtLeastOneUsableProvider(), function () {
+        StreamlineAuthenticationMethod::ifEnabled(SocialiteMethodManager::hasAtLeastOneUsableProvider(), function () {
             Route::get('/flow/{provider}/{id}', [SocialiteController::class, 'handover'])
                 ->name(Package::CONFIG_NAMESPACE.'.flow.handover');
             Route::get('/flow/{provider}/{id}/callback', [SocialiteController::class, 'callback'])
@@ -25,13 +25,13 @@ Route::middleware(['web'])
         });
 
         // login via selectable user for demo purposes
-        StreamlineAuthenticationMethod::isEnabled('selectable_user', function () {
+        StreamlineAuthenticationMethod::ifEnabled('selectable_user', function () {
             Route::post('/predefined-email', [SelectableUserController::class, 'process'])
                 ->name(Package::key('route.auth.predefined-email'));
         });
 
         // magic link
-        StreamlineAuthenticationMethod::isEnabled('magic_link_via_email', function () {
+        StreamlineAuthenticationMethod::ifEnabled('magic_link_via_email', function () {
             Route::post('/magic-link', [MagicLinkController::class, 'requestMagicLink'])
                 ->name(Package::key('route.auth.magic-link.request'));
 
@@ -41,7 +41,7 @@ Route::middleware(['web'])
         });
 
         // email/password
-        StreamlineAuthenticationMethod::isEnabled('form_based', function () {
+        StreamlineAuthenticationMethod::ifEnabled('form_based', function () {
             Route::post('/form', [FormBasedController::class, 'process'])
                 ->name(Package::key('route.auth.form'));
         });

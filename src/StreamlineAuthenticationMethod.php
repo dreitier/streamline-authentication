@@ -5,84 +5,39 @@ declare(strict_types=1);
 namespace Dreitier\Streamline\Authentication;
 
 use Dreitier\Streamline\Authentication\Contracts\AuthenticationMethod;
+use Dreitier\Streamline\Authentication\Providers\Provider;
+use Dreitier\Streamline\Authentication\Repositories\Contracts\AuthenticationMethodRepository as AuthenticationMethodRepositoryContract;
+use Dreitier\Streamline\Authentication\Repositories\Contracts\AuthenticationMethodSelector;
 
 class StreamlineAuthenticationMethod
 {
-    /**
-     * Contains a list of helper methods to check if an enabling rule can be used
-     * @var array|null
-     */
-    private ?array $enablingRules = null;
-
-    public function getEnablingRules(): array
+    public function __construct(private readonly AuthenticationMethodRepositoryContract $authenticationMethodRepository)
     {
-        if ($this->enablingRules == null) {
-            $this->enablingRules = [
-                'in_environment' => fn(...$args) => self::isEnvironmentActive(... $args)
-            ];
-        }
 
-        return $this->enablingRules;
     }
 
-    /**
-     * Parses a list of enabling rules. It is more or less the same format as for Laravel Validation:
-     * "rule_1:arg1,arg2|rule_2|rule_3". The first rule that failed. fails the whole rule chain.
-     *
-     * @param $enablingRulesDefinition
-     * @return bool
-     */
-    public function parseEnablingRules($enablingRulesDefinition)
+    public function ifEnabled(string|callable $authenticationMethod, ?callable $ifEnabled = null): bool
     {
-        $rulesToExecute = explode("|", $enablingRulesDefinition);
-        $availableRules = $this->getEnablingRules();
+        $isEnabled = false;
 
-        $r = false;
+        if (is_string($authenticationMethod)) {
+            $selector = AuthenticationMethodSelector::usableProvider(Provider::globalProvider($authenticationMethod));
 
-        foreach ($rulesToExecute as $rule) {
-            $splat = explode(":", $rule);
-
-            if (isset($availableRules[$splat[0]])) {
-                $args = [];
-
-                if (sizeof($splat) >= 2) {
-                    $args = explode(",", $splat[1]);
-                }
-
-                $resultOfForwardMethod = $availableRules[$splat[0]](... $args);
-
-                $r = (bool)$resultOfForwardMethod;
-
-                // fail fast
-                if (!$r) {
-                    return false;
-                }
+            if (class_exists($authenticationMethod)) {
+                $selector = AuthenticationMethodSelector::usableMethod($authenticationMethod);
             }
-        }
 
-        return $r;
-    }
+            $r = $this->authenticationMethodRepository->find($selector);
 
-    public function isEnabled(bool|AuthenticationMethod|callable|string $authenticationMethod, ?callable $ifEnabled = null): bool
-    {
-        $isEnabled = true;
+            if ($r->count() > 0) {
+                $isEnabled = $r->first()->isEnabled();
+            }
 
-        if (is_bool($authenticationMethod)) {
-            $isEnabled = $authenticationMethod;
-        } elseif ($authenticationMethod instanceof AuthenticationMethod) {
-            $isEnabled = $authenticationMethod->isEnabled();
         } elseif (is_callable($authenticationMethod)) {
-            $isEnabled = $authenticationMethod();
+            $isEnabled = (bool)$authenticationMethod();
+
         } else {
-            $cfg = Package::config('methods.' . $authenticationMethod, null);
-
-            $isEnabled = !$cfg ? false : Package::configWithDefault('methods.' . $authenticationMethod . '.enabled', true);
-
-            if (is_callable($isEnabled)) {
-                $isEnabled = $isEnabled();
-            } elseif (is_string($isEnabled)) {
-                $isEnabled = $this->parseEnablingRules($isEnabled);
-            }
+            throw_if(true == false, "Provided parameter for ifEnabled is not valid; provide either a unique authentication method name or a callable");
         }
 
         if ($isEnabled && is_callable($ifEnabled)) {
@@ -92,9 +47,12 @@ class StreamlineAuthenticationMethod
         return $isEnabled;
     }
 
-    public function isEnvironmentActive(...$allowedEnvironments)
+
+    public static function isEnvironmentActive(...$allowedEnvironments)
     {
-        if (in_array(config('app.env'), $allowedEnvironments)) {
+        $env = config('app.env');
+
+        if (in_array($env, $allowedEnvironments)) {
             return true;
         }
 

@@ -36,7 +36,7 @@ class SocialiteMethod extends AuthenticationMethodAdapter
         $this->upsertConfiguration($configuration);
         $this->socialiteConnectionConfiguration = $configuration['socialite'] ?? [];
 
-        if (! empty($this->socialiteConnectionConfiguration)) {
+        if (!empty($this->socialiteConnectionConfiguration)) {
             $this->configured = true;
         }
     }
@@ -48,19 +48,19 @@ class SocialiteMethod extends AuthenticationMethodAdapter
 
     private function toRouteArgs()
     {
-        throw_if(! $this->provider, SocialiteConfigurationException::class, 'Cannot create route arguments, provider has not been set');
+        throw_if(!$this->provider, SocialiteConfigurationException::class, 'Cannot create route arguments, provider has not been set');
 
         return ['provider' => $this->provider->getType(), 'id' => $this->provider->getId()];
     }
 
     public function toHandoverUrl()
     {
-        return route(Package::CONFIG_NAMESPACE.'.flow.handover', $this->toRouteArgs());
+        return route(Package::CONFIG_NAMESPACE . '.flow.handover', $this->toRouteArgs());
     }
 
     public function toCallbackUri()
     {
-        return route(Package::CONFIG_NAMESPACE.'.flow.callback', $this->toRouteArgs());
+        return route(Package::CONFIG_NAMESPACE . '.flow.callback', $this->toRouteArgs());
     }
 
     public function driver()
@@ -69,17 +69,17 @@ class SocialiteMethod extends AuthenticationMethodAdapter
             return $this->socialiteDriver;
         }
 
-        throw_if(! isset($this->socialiteConnectionConfiguration['client_id']), ConfigurationException::class, 'Key client_id is missing for provider '.$this->provider);
-        throw_if(! isset($this->socialiteConnectionConfiguration['client_secret']), ConfigurationException::class, 'Key client_secret is missing for provider '.$this->provider);
+        throw_if(!isset($this->socialiteConnectionConfiguration['client_id']), ConfigurationException::class, 'Key client_id is missing for provider ' . $this->provider);
+        throw_if(!isset($this->socialiteConnectionConfiguration['client_secret']), ConfigurationException::class, 'Key client_secret is missing for provider ' . $this->provider);
 
         $args = $this->driverAdapter->configureAdditionalConnectionParameter($this->socialiteConnectionConfiguration);
 
         $callbackUri = $this->toCallbackUri();
 
         // This is a bug (?) inside Socialite. e.g. services.azure.redirect has to be set, even if it is provided as parameter for Config(...)
-        config(['services.'.$this->socialiteDriverName.'.redirect' => $callbackUri]);
-        config(['services.'.$this->socialiteDriverName.'.client_id' => $this->socialiteConnectionConfiguration['client_id']]);
-        config(['services.'.$this->socialiteDriverName.'.client_secret' => $this->socialiteConnectionConfiguration['client_secret']]);
+        config(['services.' . $this->socialiteDriverName . '.redirect' => $callbackUri]);
+        config(['services.' . $this->socialiteDriverName . '.client_id' => $this->socialiteConnectionConfiguration['client_id']]);
+        config(['services.' . $this->socialiteDriverName . '.client_secret' => $this->socialiteConnectionConfiguration['client_secret']]);
 
         $config = new Config(
             $this->socialiteConnectionConfiguration['client_id'],
@@ -97,7 +97,7 @@ class SocialiteMethod extends AuthenticationMethodAdapter
             // add \SocialiteProviders\Manager\ServiceProvider::class to ServiceProvider
             rethrow_if($e, BindingResolutionException::class, SocialiteConfigurationException::class, 'Socialite is not active. Do you have added Socialite to your service providers?');
             // maybe driver is missing
-            throw_if(true, SocialiteConfigurationException::class, 'Unable to create Socialite driver for provider '.$this->provider.': '.$e->getMessage());
+            throw_if(true, SocialiteConfigurationException::class, 'Unable to create Socialite driver for provider ' . $this->provider . ': ' . $e->getMessage());
         }
 
         return $this->socialiteDriver;
