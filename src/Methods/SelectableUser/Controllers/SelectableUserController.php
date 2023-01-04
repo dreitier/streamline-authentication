@@ -17,7 +17,8 @@ class SelectableUserController
     public function process()
     {
         $principal = request()->get('principal');
-        $user = $this->userRepository->find(Package::configWithDefault('methods.selectable_user.find_by_key', 'email'), $principal)->firstOrFail();
+		$key = Package::configWithDefault('methods.selectable_user.find_by_key', 'email');
+        $user = $this->userRepository->find($key, $principal);
 
         $responses = event(new AuthenticationSucceeded($user));
 
