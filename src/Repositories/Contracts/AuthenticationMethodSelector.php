@@ -13,11 +13,12 @@ use Dreitier\Streamline\Authentication\Contracts\Provider;
 class AuthenticationMethodSelector
 {
     public function __construct(
-        public readonly bool $includeDisabled = true,
-        public readonly bool $includeUnconfigured = true,
+        public readonly bool      $includeDisabled = true,
+        public readonly bool      $includeUnconfigured = true,
         public readonly ?Provider $provider = null,
-        public readonly ?string $authenticationMethod = null,
-    ) {
+        public readonly ?string   $authenticationMethod = null,
+    )
+    {
     }
 
     /**
@@ -43,7 +44,7 @@ class AuthenticationMethodSelector
     /**
      * Find a single usable authentication method of a given provider configuration.
      *
-     * @param  Provider  $provider
+     * @param Provider $provider
      * @return AuthenticationMethodSelector
      */
     public static function usableProvider(Provider $provider)
@@ -54,7 +55,7 @@ class AuthenticationMethodSelector
     /**
      * Find one or multiple methods of a given authentication method class
      *
-     * @param  string  $authenticationMethodClazz
+     * @param string $authenticationMethodClazz
      * @return AuthenticationMethodSelector
      */
     public static function usableMethod(string $authenticationMethodClazz)
@@ -65,24 +66,24 @@ class AuthenticationMethodSelector
     /**
      * Check the given authentication method against this selector.
      *
-     * @param  AuthenticationMethod  $method
+     * @param AuthenticationMethod $method
      * @return bool
      */
     public function matches(AuthenticationMethod $method)
     {
-        if (! $this->includeDisabled && ! $method->isEnabled()) {
+        if (!$this->includeDisabled && !$method->isEnabled()) {
             return false;
         }
 
-        if ($this->includeUnconfigured && ! $method->isConfigured()) {
+        if ($this->includeUnconfigured && !$method->isConfigured()) {
             return false;
         }
 
-        if ($this->provider && ($this->provider::class != $method->getProvider()::class)) {
+        if ($this->provider && (($this->provider::class != $method->getProvider()::class) || (!$this->provider->matches($method->getProvider())))) {
             return false;
         }
 
-        if ($this->authenticationMethod && ($this->authenticationMethod != $method::class)) {
+        if ($this->authenticationMethod && ($this->authenticationMethod != $method::class) && (!is_subclass_of($method::class, $this->authenticationMethod))) {
             return false;
         }
 

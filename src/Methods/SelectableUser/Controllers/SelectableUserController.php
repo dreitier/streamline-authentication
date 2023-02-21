@@ -21,7 +21,8 @@ class SelectableUserController
         $user = $this->userRepository->find($key, $principal);
 
         $responses = event(new AuthenticationSucceeded($user));
+        $response = expect_event_response($responses);
 
-        return expect_event_response($responses);
+        return $response;
     }
 }

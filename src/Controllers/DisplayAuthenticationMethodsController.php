@@ -10,7 +10,7 @@ use Dreitier\Streamline\Authentication\Package;
 use Dreitier\Streamline\Authentication\Repositories\Contracts\AuthenticationMethodRepository as AuthenticationMethodRepositoryContract;
 use Dreitier\Streamline\Authentication\Repositories\Contracts\AuthenticationMethodSelector;
 
-class LoginEntrypointController
+class DisplayAuthenticationMethodsController
 {
     public function __construct(public readonly AuthenticationMethodRepositoryContract $authenticationMethodRepository)
     {

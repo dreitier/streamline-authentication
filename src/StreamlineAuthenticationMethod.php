@@ -5,9 +5,21 @@ declare(strict_types=1);
 namespace Dreitier\Streamline\Authentication;
 
 use Dreitier\Streamline\Authentication\Contracts\AuthenticationMethod;
+use Dreitier\Streamline\Authentication\Controllers\DisplayAuthenticationMethodsController;
+use Dreitier\Streamline\Authentication\Controllers\LoginController;
+use Dreitier\Streamline\Authentication\Facades\SocialiteMethodManager;
+use Dreitier\Streamline\Authentication\Methods\FormBased\Controllers\FormBasedController;
+use Dreitier\Streamline\Authentication\Methods\MagicLink\Controllers\MagicLinkController;
+use Dreitier\Streamline\Authentication\Methods\SelectableUser\Controllers\SelectableUserController;
+use Dreitier\Streamline\Authentication\Methods\Socialite\Controllers\SocialiteController;
+use Dreitier\Streamline\Authentication\Middlewares\OneTimeSignatureUsage;
 use Dreitier\Streamline\Authentication\Providers\Provider;
 use Dreitier\Streamline\Authentication\Repositories\Contracts\AuthenticationMethodRepository as AuthenticationMethodRepositoryContract;
 use Dreitier\Streamline\Authentication\Repositories\Contracts\AuthenticationMethodSelector;
+use Illuminate\Log\LogManager;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
+use Psr\Log\LoggerInterface;
 
 class StreamlineAuthenticationMethod
 {
@@ -15,38 +27,6 @@ class StreamlineAuthenticationMethod
     {
 
     }
-
-    public function ifEnabled(string|callable $authenticationMethod, ?callable $ifEnabled = null): bool
-    {
-        $isEnabled = false;
-
-        if (is_string($authenticationMethod)) {
-            $selector = AuthenticationMethodSelector::usableProvider(Provider::globalProvider($authenticationMethod));
-
-            if (class_exists($authenticationMethod)) {
-                $selector = AuthenticationMethodSelector::usableMethod($authenticationMethod);
-            }
-
-            $r = $this->authenticationMethodRepository->find($selector);
-
-            if ($r->count() > 0) {
-                $isEnabled = $r->first()->isEnabled();
-            }
-
-        } elseif (is_callable($authenticationMethod)) {
-            $isEnabled = (bool)$authenticationMethod();
-
-        } else {
-            throw_if(true == false, "Provided parameter for ifEnabled is not valid; provide either a unique authentication method name or a callable");
-        }
-
-        if ($isEnabled && is_callable($ifEnabled)) {
-            $ifEnabled();
-        }
-
-        return $isEnabled;
-    }
-
 
     public static function isEnvironmentActive(...$allowedEnvironments)
     {

@@ -42,6 +42,11 @@ class Provider implements ProviderContract
 
     public function __toString()
     {
-        return $this->type.':'.$this->getId();
+        return $this->type . ':' . $this->getId();
+    }
+
+    public function matches(ProviderContract $other): bool
+    {
+        return $this->type == $other->type && $this->id == $other->id;
     }
 }

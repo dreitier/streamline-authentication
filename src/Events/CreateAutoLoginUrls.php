@@ -6,9 +6,9 @@ namespace Dreitier\Streamline\Authentication\Events;
 
 use Dreitier\Streamline\Authentication\Util\Collection\UserCollection;
 
-class AuthenticationSucceeded
+class CreateAutoLoginUrls
 {
-    public function __construct(public readonly UserCollection $users)
+    public function __construct(public readonly UserCollection $users, public readonly array $routeArgs = [])
     {
     }
 }

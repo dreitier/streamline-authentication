@@ -30,8 +30,10 @@ class SocialiteUiDecorator extends UiAuthenticationMethodDecoratorAdapter
 
     public function render(): View
     {
+        $methods = $this->allAuthenticationMethods(SocialiteMethod::class);
+
         return Package::view('socialite.form', [
-            'socialiteAuthenticationMethods' => $this->allAuthenticationMethods(SocialiteMethod::class),
+            'socialiteAuthenticationMethods' => $methods,
         ]);
     }
 }

@@ -16,7 +16,7 @@ class FormBasedUiDecorator extends UiAuthenticationMethodDecoratorAdapter
     public function render(): View
     {
         return Package::view('form_based.form', [
-            'route' => route(Package::key('route.auth.form')),
+            'route' => route(Package::route('auth.form')),
             'form' => Package::config('methods.form_based.form'),
         ]);
     }

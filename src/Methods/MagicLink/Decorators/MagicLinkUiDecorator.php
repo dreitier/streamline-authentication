@@ -19,7 +19,7 @@ class MagicLinkUiDecorator extends UiAuthenticationMethodDecoratorAdapter
     public function render(): View
     {
         return Package::view('magic_link.form', [
-            'route' => route(Package::key('route.auth.magic-link.request')),
+            'route' => route(Package::route('auth.magic-link.request')),
         ]);
     }
 

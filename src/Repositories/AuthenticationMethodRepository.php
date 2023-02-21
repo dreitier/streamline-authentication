@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Dreitier\Streamline\Authentication\Repositories;
 
+use Dreitier\Streamline\Authentication\Contracts\AuthenticationMethod;
 use Dreitier\Streamline\Authentication\Contracts\AuthenticationMethodFactory as AuthenticationMethodFactoryContract;
 use Dreitier\Streamline\Authentication\Package;
 use Dreitier\Streamline\Authentication\Providers\Provider;
@@ -17,14 +18,23 @@ class AuthenticationMethodRepository implements AuthenticationMethodRepositoryCo
     {
     }
 
+    protected function getAvailableMethods(): array
+    {
+        return Package::config('methods');
+    }
+
     public function find(AuthenticationMethodSelector $selector): Collection
     {
         $r = [];
 
-        $methods = Package::config('methods');
+        $methods = $this->getAvailableMethods();
 
         foreach ($methods as $uniqueMethodName => $configuration) {
-            $method = $this->methodFactory->create($uniqueMethodName, $configuration, Provider::globalProvider($uniqueMethodName));
+            if ($configuration instanceof AuthenticationMethod) {
+                $method = $configuration;
+            } else {
+                $method = $this->methodFactory->create($uniqueMethodName, $configuration, Provider::globalProvider($uniqueMethodName));
+            }
 
             if ($selector->matches($method)) {
                 $r[] = $method;

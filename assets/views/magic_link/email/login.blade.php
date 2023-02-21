@@ -1,7 +1,8 @@
 <x-mail::message>
 # {{ $h1 }}
-
 You have requested to log in into our app.
 
-<x-mail::button :url="$url">Log in now</x-mail::button>
+@foreach ($magicLinks->autoLoginUrls() as $autoLoginUrl)
+<x-mail::button :url="$autoLoginUrl->create()">Log in now</x-mail::button>
+@endforeach
 </x-mail::message>

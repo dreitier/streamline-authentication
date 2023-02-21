@@ -7,6 +7,7 @@ namespace Dreitier\Streamline\Authentication\Listeners;
 use Dreitier\Streamline\Authentication\Events\AuthenticationSucceeded;
 use Dreitier\Streamline\Authentication\Events\ExternalAuthenticationSucceeded;
 use Dreitier\Streamline\Authentication\Package;
+use Dreitier\Streamline\Authentication\Util\Collection\UserCollection;
 
 class RequireExistingAccountAfterAuthentication
 {
@@ -16,8 +17,8 @@ class RequireExistingAccountAfterAuthentication
         abort_if(empty($email), 'External authentication must provide an email address');
 
         $user = Package::config('user.impl')::where('email', $email)->first();
-        abort_if(! $user, 403, 'The given user does not exist in our database');
+        abort_if(!$user, 403, 'The given user does not exist in our database');
 
-        return event(new AuthenticationSucceeded($user));
+        return event(new AuthenticationSucceeded(UserCollection::of(($user))));
     }
 }

@@ -7,6 +7,7 @@ namespace Dreitier\Streamline\Authentication\Listeners;
 use Dreitier\Streamline\Authentication\Events\AuthenticationSucceeded;
 use Dreitier\Streamline\Authentication\Events\ExternalAuthenticationSucceeded;
 use Dreitier\Streamline\Authentication\Package;
+use Dreitier\Streamline\Authentication\Util\Collection\UserCollection;
 
 class UpsertUserAfterExternalAuthentication
 {
@@ -25,6 +26,6 @@ class UpsertUserAfterExternalAuthentication
             'password' => 'random',
         ])->first();
 
-        return event(new AuthenticationSucceeded($user));
+        return event(new AuthenticationSucceeded(UserCollection::of($user)));
     }
 }

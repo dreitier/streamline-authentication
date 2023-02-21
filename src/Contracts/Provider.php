@@ -22,4 +22,6 @@ interface Provider
      * @return mixed
      */
     public function getId(): mixed;
+
+    public function matches(Provider $other): bool;
 }

@@ -46,7 +46,7 @@ class SocialiteMethod extends AuthenticationMethodAdapter
         return $this->driverAdapter;
     }
 
-    private function toRouteArgs()
+    protected function toRouteArgs()
     {
         throw_if(!$this->provider, SocialiteConfigurationException::class, 'Cannot create route arguments, provider has not been set');
 
@@ -55,12 +55,12 @@ class SocialiteMethod extends AuthenticationMethodAdapter
 
     public function toHandoverUrl()
     {
-        return route(Package::CONFIG_NAMESPACE . '.flow.handover', $this->toRouteArgs());
+        return route(Package::route('flow.handover'), $this->toRouteArgs());
     }
 
     public function toCallbackUri()
     {
-        return route(Package::CONFIG_NAMESPACE . '.flow.callback', $this->toRouteArgs());
+        return route(Package::route('flow.callback'), $this->toRouteArgs());
     }
 
     public function driver()
@@ -78,8 +78,11 @@ class SocialiteMethod extends AuthenticationMethodAdapter
 
         // This is a bug (?) inside Socialite. e.g. services.azure.redirect has to be set, even if it is provided as parameter for Config(...)
         config(['services.' . $this->socialiteDriverName . '.redirect' => $callbackUri]);
-        config(['services.' . $this->socialiteDriverName . '.client_id' => $this->socialiteConnectionConfiguration['client_id']]);
-        config(['services.' . $this->socialiteDriverName . '.client_secret' => $this->socialiteConnectionConfiguration['client_secret']]);
+
+        foreach ($this->socialiteConnectionConfiguration as $key => $value) {
+            config(['services.' . $this->socialiteDriverName . '.' . $key => $value]);
+            $args[$key] = $value;
+        }
 
         $config = new Config(
             $this->socialiteConnectionConfiguration['client_id'],
@@ -88,7 +91,6 @@ class SocialiteMethod extends AuthenticationMethodAdapter
             $args,
         );
 
-        //   event(new RequireSocialiteDriverReconfiguration($this));
         try {
             $this->socialiteDriver = Socialite::driver($this->socialiteDriverName)
                 ->setConfig($config)

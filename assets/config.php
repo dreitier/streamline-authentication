@@ -10,9 +10,7 @@ use Dreitier\Streamline\Authentication\Methods\SelectableUser\Decorators\Selecta
 use Dreitier\Streamline\Authentication\Methods\Socialite\Decorators\SocialiteUiDecorator;
 use Dreitier\Streamline\Authentication\Methods\Socialite\Drivers\AzureDriverAdapter;
 use Dreitier\Streamline\Authentication\Methods\Socialite\Factories\SocialiteAuthenticationMethodFactory;
-use Dreitier\Streamline\Authentication\Repositories\DelegateAuthenticationMethodRepository;
-use Dreitier\Streamline\Authentication\Repositories\Strategies\RepositoryLocatorStrategy;
-use Dreitier\Streamline\Authentication\Tenancy\TenantContextProvider;
+use Dreitier\Streamline\Authentication\Repositories\AuthenticationMethodRepository;
 
 return [
     'user' => [
@@ -20,6 +18,26 @@ return [
          * The user model when retrieving a person from the repository
          */
         'impl' => \App\Models\User::class,
+    ],
+    'login' => [
+        /**
+         * Timeout in seconds after the link expires.
+         */
+        'entrypoint' => [
+            'apply_route_name' => fn($defaultRoute, $resolvedUserPrincipal) => $defaultRoute,
+            'apply_route_args' => fn($routeArgs, $resolvedUserPrincipal, $routeName) => $routeArgs,
+            'one_time' => [
+                'expires_after_seconds' => 600,
+            ]
+        ],
+        'user' => [
+            'extract_principal' => fn($user) => $user->id,
+            'resolve_by' => 'id',
+        ],
+        'after' => [
+            'redirect_to' => '/dashboard'
+        ],
+        'guard' => 'web',
     ],
     'methods' => [
         /*
@@ -89,11 +107,11 @@ return [
              * `fn($user) => $user->name`
              */
             'display_name_property' => 'email',
-        /**
-         * A custom find method. By default, all users from the user model defined above are selected.
-         * This callback must return a hashmap [$principal => $displayName]:
-         * `fn() => ['id_1' => 'display_name_1', 'id_2' => 'display_name_2']`
-         */
+            /**
+             * A custom find method. By default, all users from the user model defined above are selected.
+             * This callback must return a hashmap [$principal => $displayName]:
+             * `fn() => ['id_1' => 'display_name_1', 'id_2' => 'display_name_2']`
+             */
             // 'finder' => null,
         ],
         /*
@@ -106,10 +124,6 @@ return [
         */
         'magic_link_via_email' => [
             'impl' => \Dreitier\Streamline\Authentication\Methods\MagicLinkMethod::class,
-            /**
-             * Timeout in seconds after the link expires.
-             */
-            'expires_after_seconds' => 600,
             /**
              * Use this model attribute to find the given user
              */
@@ -170,14 +184,9 @@ return [
          */
         'repository' => [
             /**
-             * Strategy to use to locate an authentication method repository.
-             * This is practically used to allow multi-tenant environments to have different authentication methods.
-             */
-            'strategy' => RepositoryLocatorStrategy::class,
-            /**
              * Delegate to another authentication method repository based upon the strategy.
              */
-            'impl' => DelegateAuthenticationMethodRepository::class,
+            'impl' => AuthenticationMethodRepository::class,
         ],
         /**
          * Factories for creating new authentication methods
@@ -194,9 +203,4 @@ return [
         ],
     ],
     'routes' => true,
-    'tenancy' => [
-        'provider' => [
-            'class' => TenantContextProvider::class,
-        ],
-    ],
 ];

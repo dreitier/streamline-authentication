@@ -22,8 +22,8 @@ class SocialiteController
     /**
      * Find a Socialite authentication method
      *
-     * @param  string  $provider
-     * @param  mixed  $id
+     * @param string $provider
+     * @param mixed $id
      * @return SocialiteMethod
      */
     private function find(string $provider, mixed $id): SocialiteMethod
@@ -32,7 +32,7 @@ class SocialiteController
 
         $r = $result->firstOrFail();
 
-        abort_if(! ($r instanceof SocialiteMethod), 403, 'That authentication method can not be called on this controller');
+        abort_if(!($r instanceof SocialiteMethod), 403, 'That authentication method can not be called on this controller');
 
         return $r;
     }
@@ -40,24 +40,24 @@ class SocialiteController
     /**
      * Create handover to the socialite authentication method with the configured provider.
      *
-     * @param $provider
-     * @param $id
      * @return mixed
      */
-    public function handover($provider, $id)
+    public function handover()
     {
+        $provider = request()->route()->parameter('provider');
+        $id = request()->route()->parameter('id');
+
         return $this->find($provider, $id)->handover();
     }
 
     /**
      * Receive the callback from the provider configured for that Socialite authentication method.
-     *
-     * @param $provider
-     * @param $id
      * @return mixed
      */
-    public function callback($provider, $id)
+    public function callback()
     {
+        $provider = request()->route()->parameter('provider');
+        $id = request()->route()->parameter('id');
         $user = $this->find($provider, $id)->callbackReceived();
 
         $r = event(new ExternalAuthenticationSucceeded($user));

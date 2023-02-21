@@ -31,7 +31,7 @@ class SelectableUserUiDecorator extends UiAuthenticationMethodDecoratorAdapter
 
         return Package::view('selectable_user.form', [
             'users' => $users,
-            'route' => route(Package::key('route.auth.predefined-email')),
+            'route' => route(Package::route('auth.predefined-email')),
         ]);
     }
 
