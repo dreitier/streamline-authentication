@@ -15,8 +15,12 @@ class UserCollection extends \Illuminate\Support\Collection
         parent::__construct($items);
     }
 
-    public static function of(array $items): UserCollection
+    public static function of(object|array $items): UserCollection
     {
+        if (!is_array($items)) {
+            $items = [$items];
+        }
+
         return new static($items);
     }
 
