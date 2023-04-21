@@ -11,10 +11,11 @@ use Dreitier\Streamline\Authentication\Contracts\Provider;
 class ExternalIdentity implements IdentityContract
 {
     public function __construct(public readonly Provider $fromOriginProvider,
-                                public readonly mixed $externalId,
-                                public readonly ?string $email,
-                                public readonly mixed $data
-    ) {
+                                public readonly mixed    $externalId,
+                                public readonly ?string  $email,
+                                public readonly mixed    $data
+    )
+    {
     }
 
     public function getExternalId(): mixed
@@ -30,5 +31,10 @@ class ExternalIdentity implements IdentityContract
     public function getData(): mixed
     {
         return $this->data;
+    }
+
+    public function __toString(): string
+    {
+        return "ExternalIdentity={id='" . $this->externalId . "'}";
     }
 }

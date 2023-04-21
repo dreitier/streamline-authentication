@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Dreitier\Streamline\Authentication\Methods\SelectableUser\Controllers;
 
-use Dreitier\Streamline\Authentication\Events\AuthenticationSucceeded;
+use Dreitier\Piedpiper\Pipe;
+use Dreitier\Streamline\Authentication\Events\Login;
 use Dreitier\Streamline\Authentication\Package;
 use Dreitier\Streamline\Authentication\Repositories\Contracts\UserRepository;
+use Dreitier\Streamline\Authentication\Steps\RedirectToAutoLoginUrlStep;
 
 class SelectableUserController
 {
@@ -17,12 +19,15 @@ class SelectableUserController
     public function process()
     {
         $principal = request()->get('principal');
-		$key = Package::configWithDefault('methods.selectable_user.find_by_key', 'email');
+        $key = Package::configWithDefault('methods.selectable_user.find_by_key', 'email');
         $user = $this->userRepository->find($key, $principal);
 
-        $responses = event(new AuthenticationSucceeded($user));
-        $response = expect_event_response($responses);
+        $pipe = new Pipe([
+            RedirectToAutoLoginUrlStep::class
+        ]);
 
-        return $response;
+        return $pipe->run([
+            Login::class => new Login($user->firstOrFail())
+        ]);
     }
 }

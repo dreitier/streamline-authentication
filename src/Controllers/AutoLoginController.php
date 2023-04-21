@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 namespace Dreitier\Streamline\Authentication\Controllers;
 
-use Dreitier\Streamline\Authentication\Controllers\ProvidesAuthenticationMethods;
-use Dreitier\Streamline\Authentication\Events\AuthenticationSucceeded;
 use Dreitier\Streamline\Authentication\Events\Login;
-use Dreitier\Streamline\Authentication\Methods\MagicLink\Mailable\LoginWithMagicLinkMailable;
-use Dreitier\Streamline\Authentication\Methods\MagicLinkMethod;
 use Dreitier\Streamline\Authentication\Package;
 use Dreitier\Streamline\Authentication\Repositories\Contracts\AuthenticationMethodRepository as AuthenticationMethodRepositoryContract;
 use Dreitier\Streamline\Authentication\Repositories\Contracts\UserRepository as UserRepositoryContract;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
+use Dreitier\Streamline\Authentication\Steps\LoginStep;
+use Dreitier\Piedpiper\Pipe;
 
 class AutoLoginController
 {
@@ -45,8 +41,12 @@ class AutoLoginController
 
         abort_if(!$user, 404, 'User could not be found');
 
-        $r = get_first_event_response(event(new Login($user)));
+        $pipe = new Pipe([
+            LoginStep::class,
+        ]);
 
-        return $r;
+        return $pipe->run([
+            Login::class => new Login($user)
+        ]);
     }
 }

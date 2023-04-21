@@ -24,7 +24,8 @@ class LoginWithMagicLinkMailable extends Mailable
             markdown: Package::viewKey('magic_link.email.login'),
             with: [
                 'h1' => $this->getSubject(),
-                'magicLinks' => $this->magicLinkResult,
+                'users' => $this->magicLinkResult->users,
+                'autoLoginUrls' => $this->magicLinkResult->autoLoginUrls,
             ],
         );
     }

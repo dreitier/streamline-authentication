@@ -30,7 +30,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Dreitier\\Streamline\\Authentication\\": "src/"
+      "Dreitier\\Streamline\\Authentication\\": "src/",
+      "Dreitier\\Piedpiper\\": "src-piedpiper/"
     },
     "files": [
       "src/helpers.php"
@@ -38,7 +39,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Dreitier\\Streamline\\Authentication\\Tests\\": "tests/"
+      "Dreitier\\Streamline\\Authentication\\Tests\\": "tests/",
+      "Dreitier\\Pipedpiper\\Tests\\": "tests-piedpiper/"
     }
   },
   "extra": {

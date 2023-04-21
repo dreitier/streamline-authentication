@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Dreitier\Streamline\Authentication\Methods\Socialite\Controllers;
 
+use Dreitier\Piedpiper\Pipe;
 use Dreitier\Streamline\Authentication\Events\ExternalAuthenticationSucceeded;
 use Dreitier\Streamline\Authentication\Methods\SocialiteMethod;
+use Dreitier\Streamline\Authentication\Package;
 use Dreitier\Streamline\Authentication\Providers\Provider;
 use Dreitier\Streamline\Authentication\Repositories\Contracts\AuthenticationMethodRepository as AuthenticationMethodRepositoryContract;
 use Dreitier\Streamline\Authentication\Repositories\Contracts\AuthenticationMethodSelector;
@@ -58,16 +60,15 @@ class SocialiteController
     {
         $provider = request()->route()->parameter('provider');
         $id = request()->route()->parameter('id');
-        $user = $this->find($provider, $id)->callbackReceived();
+        $socialiteMethod = $this->find($provider, $id);
+        $user = $socialiteMethod->callbackReceived();
 
-        $r = event(new ExternalAuthenticationSucceeded($user));
+        $externalAuthenticationSucceeded = new ExternalAuthenticationSucceeded($socialiteMethod, $user);
 
-        $f = get_first_event_response($r);
+        $pipe = new Pipe(Package::config('steps.socialite.pipe', []));
 
-        if ($f != null) {
-            return $f;
-        }
-
-        abort(403, 'No event handler responded');
+        return $pipe->run([
+            ExternalAuthenticationSucceeded::class => $externalAuthenticationSucceeded,
+        ]);
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dreitier\Streamline\Authentication\Methods;
 
 use Dreitier\Streamline\Authentication\Events\CreateAutoLoginUrls;
+use Dreitier\Streamline\Authentication\Facades\AutoLoginUrlFactory;
 use Dreitier\Streamline\Authentication\Methods\Adapters\ConfigurableAuthenticationMethodAdapter;
 use Dreitier\Streamline\Authentication\Methods\MagicLink\MagicLinkResult;
 use Dreitier\Streamline\Authentication\Package;
@@ -24,8 +25,8 @@ class MagicLinkMethod extends ConfigurableAuthenticationMethodAdapter
             throw new \Exception('Unable to find user(s) for principal');
         }
 
-        $createdAutoLoginUrls = get_first_event_response(event(new CreateAutoLoginUrls($users, $routeArgs)));
+        $autoLoginUrls = AutoLoginUrlFactory::create($users);
 
-        return new MagicLinkResult($users, $createdAutoLoginUrls);
+        return new MagicLinkResult($users, $autoLoginUrls);
     }
 }

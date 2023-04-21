@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use Dreitier\Streamline\Authentication\Facades\StreamlineAuthenticationMethod;
 use Dreitier\Streamline\Authentication\Methods\Factories\ConfigurableAuthenticationMethodFactory;
 use Dreitier\Streamline\Authentication\Methods\FormBased\Decorators\FormBasedUiDecorator;
 use Dreitier\Streamline\Authentication\Methods\MagicLink\Decorators\MagicLinkUiDecorator;
@@ -11,6 +10,8 @@ use Dreitier\Streamline\Authentication\Methods\Socialite\Decorators\SocialiteUiD
 use Dreitier\Streamline\Authentication\Methods\Socialite\Drivers\AzureDriverAdapter;
 use Dreitier\Streamline\Authentication\Methods\Socialite\Factories\SocialiteAuthenticationMethodFactory;
 use Dreitier\Streamline\Authentication\Repositories\AuthenticationMethodRepository;
+use Dreitier\Streamline\Authentication\Steps\RedirectToAutoLoginUrlStep;
+use Dreitier\Streamline\Authentication\Steps\UpsertExternalUserStep;
 
 return [
     'user' => [
@@ -38,6 +39,9 @@ return [
             'redirect_to' => '/dashboard'
         ],
         'guard' => 'web',
+        'pipe' => [
+
+        ]
     ],
     'methods' => [
         /*
@@ -166,6 +170,14 @@ return [
             'enabled' => true,
         ],
     ],
+    'steps' => [
+        'socialite' => [
+            'pipe' => [
+                UpsertExternalUserStep::class,
+                RedirectToAutoLoginUrlStep::class
+            ]
+        ],
+    ],
     'ui' => [
         /**
          * Decorate the login page with those classes.
@@ -203,4 +215,12 @@ return [
         ],
     ],
     'routes' => true,
+    'events' => [
+        \Dreitier\Streamline\Authentication\Events\MagicLinkRequested::class => [
+            \Dreitier\Streamline\Authentication\Listeners\MagicLinkRequestedListener::class
+        ],
+        \SocialiteProviders\Manager\SocialiteWasCalled::class => [
+            'SocialiteProviders\\Azure\\AzureExtendSocialite@handle',
+        ],
+    ],
 ];

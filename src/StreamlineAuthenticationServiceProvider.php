@@ -5,21 +5,8 @@ declare(strict_types=1);
 namespace Dreitier\Streamline\Authentication;
 
 use Dreitier\Streamline\Authentication\Contracts\AuthenticationMethodFactory as AuthenticationMethodFactoryContract;
-use Dreitier\Streamline\Authentication\Events\AuthenticationSucceeded;
-use Dreitier\Streamline\Authentication\Events\CreateAutoLoginUrls;
-use Dreitier\Streamline\Authentication\Events\ExternalAuthenticationSucceeded;
-use Dreitier\Streamline\Authentication\Events\CreatedAutoLoginUrls;
-use Dreitier\Streamline\Authentication\Events\Login;
-use Dreitier\Streamline\Authentication\Events\ResolveUserPrincipals;
 use Dreitier\Streamline\Authentication\Facades\StreamlineAuthentication;
 use Dreitier\Streamline\Authentication\Facades\StreamlineAuthenticationMethod;
-use Dreitier\Streamline\Authentication\Listeners\CreateAutoLoginUrlListener;
-use Dreitier\Streamline\Authentication\Listeners\CreateAutoLoginUrlsListener;
-use Dreitier\Streamline\Authentication\Listeners\LoginListener;
-use Dreitier\Streamline\Authentication\Listeners\RedirectToAutoLoginUrl;
-use Dreitier\Streamline\Authentication\Listeners\RequireExistingAccountAfterAuthentication;
-use Dreitier\Streamline\Authentication\Listeners\ResolveUserPrincipalsListener;
-use Dreitier\Streamline\Authentication\Listeners\UpsertUserAfterExternalAuthentication;
 use Dreitier\Streamline\Authentication\Methods\Factories\AuthenticationMethodFactory;
 use Dreitier\Streamline\Authentication\Methods\Socialite\SocialiteMethodManager;
 use Dreitier\Streamline\Authentication\Repositories\Contracts\AuthenticationMethodRepository as AuthenticationMethodRepositoryContract;
@@ -84,28 +71,9 @@ class StreamlineAuthenticationServiceProvider extends ServiceProvider
         }
     }
 
-    public function events()
+    public function events(): array
     {
-        return [
-            ExternalAuthenticationSucceeded::class => [
-                UpsertUserAfterExternalAuthentication::class,
-                RequireExistingAccountAfterAuthentication::class,
-            ],
-            AuthenticationSucceeded::class => [
-                RedirectToAutoLoginUrl::class,
-            ],
-            ResolveUserPrincipals::class => [
-                ResolveUserPrincipalsListener::class,
-            ],
-            CreateAutoLoginUrls::class => [
-                CreateAutoLoginUrlsListener::class,
-            ],
-            Login::class => [
-                LoginListener::class,
-            ],
-            \SocialiteProviders\Manager\SocialiteWasCalled::class => [
-                'SocialiteProviders\\Azure\\AzureExtendSocialite@handle',
-            ],
-        ];
+        $r = config(Package::CONFIG_NAMESPACE . '.events', []);
+        return $r;
     }
 }

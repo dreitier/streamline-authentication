@@ -11,4 +11,8 @@ class AuthenticationSucceeded
     public function __construct(public readonly UserCollection $users)
     {
     }
+
+    public static function forUser($user) {
+        return new static(UserCollection::of($user));
+    }
 }

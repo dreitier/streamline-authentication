@@ -8,5 +8,6 @@ class Login
 {
     public function __construct(public readonly mixed $user)
     {
+        throw_if($user == null, "Unable to resolve user");
     }
 }

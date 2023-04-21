@@ -11,11 +11,13 @@
     <testsuites>
         <testsuite name="Unit">
             <directory suffix="Test.php">./tests</directory>
+            <directory suffix="Test.php">./tests-piedpiper</directory>
         </testsuite>
     </testsuites>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">./src</directory>
+            <directory suffix=".php">./src-piedpiper</directory>
             <exclude>
             </exclude>
         </whitelist>
