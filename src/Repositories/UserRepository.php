@@ -16,7 +16,7 @@ class UserRepository implements UserRepositoryContract
 
     public function find($key, $value): UserCollection
     {
-        $result = Package::userModel()::where($key, $value)->get()->all();
+        $result = Package::userQueryBuilder()->where($key, $value)->get()->all();
 
         return UserCollection::of($result);
     }

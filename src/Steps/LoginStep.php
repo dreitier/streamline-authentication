@@ -24,8 +24,8 @@ class LoginStep implements Step
         // setting the guard is important, otherwise authentication will fail after redirection
         Auth::guard($guardName)->login($login->user, true);
 
-        $redirectTo = Package::configWithDefault('login.after.redirect_to', '/dashboard');
+        $redirectTo = Package::configWithDefault('login.after.redirect_to_route', 'dashboard');
 
-        return response()->redirectTo($redirectTo);
+        return redirect()->route($redirectTo);
     }
 }

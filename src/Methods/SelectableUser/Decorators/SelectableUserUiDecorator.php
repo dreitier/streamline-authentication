@@ -21,7 +21,7 @@ class SelectableUserUiDecorator extends UiAuthenticationMethodDecoratorAdapter
         if (is_callable($customResolver)) {
             $users = $customResolver($users);
         } else {
-            $users = Package::userModel()::get()->mapWithKeys(function ($item, $key) {
+            $users = Package::userQueryBuilder()->get()->mapWithKeys(function ($item, $key) {
                 $principalProperty = Package::configWithDefault('methods.selectable_user.find_by_key', 'email');
                 $displayNameProperty = Package::configWithDefault('methods.selectable_user.display_name_property', 'email');
 

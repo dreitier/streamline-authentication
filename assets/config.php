@@ -18,7 +18,7 @@ return [
         /**
          * The user model when retrieving a person from the repository
          */
-        'impl' => \App\Models\User::class,
+        'query_builder' => \App\Models\User::class,
     ],
     'login' => [
         /**
@@ -36,7 +36,7 @@ return [
             'resolve_by' => 'id',
         ],
         'after' => [
-            'redirect_to' => '/dashboard'
+            'redirect_to_route' => 'dashboard'
         ],
         'guard' => 'web',
         'pipe' => [

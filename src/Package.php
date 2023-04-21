@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Dreitier\Streamline\Authentication;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\View\View;
 
 class Package
@@ -63,20 +65,36 @@ class Package
         return $r;
     }
 
-    private static ?string $userModelResolved = null;
+    private static ?Builder $userModelResolved = null;
 
-    public static function userModel(): string
+    public static function userQueryBuilder(): Builder
     {
         if (static::$userModelResolved) {
             return static::$userModelResolved;
         }
 
-        $clazz = Package::config('user.impl');
+        $clazzOrCallable = Package::config('user.query_builder');
 
-        if (!class_exists($clazz)) {
-            throw new \Exception("Class '" . $clazz . "' does not exist as a user model. Change .user.model in streamline-authentication.conf");
+        if (is_callable($clazzOrCallable)) {
+            $clazzOrCallable = $clazzOrCallable();
         }
 
-        return (static::$userModelResolved = $clazz);
+        if (is_string($clazzOrCallable)) {
+            if (!class_exists($clazzOrCallable)) {
+                throw new \Exception("Model class '" .$clazzOrCallable . "' does not exist for streamline-authentication.user.query_builder");
+            }
+
+            $clazzOrCallable = new $clazzOrCallable();
+        }
+
+        if ($clazzOrCallable instanceof Builder) {
+            // accept
+        } elseif ($clazzOrCallable instanceof Model) {
+            $clazzOrCallable = $clazzOrCallable->query();
+        } else {
+            throw new \Exception("streamline-authentication.user.query_builder must be either a Eloquent Model or Builder instance and not " . gettype($clazzOrCallable));
+        }
+
+        return (static::$userModelResolved = $clazzOrCallable);
     }
 }
