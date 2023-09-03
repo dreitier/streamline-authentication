@@ -35,7 +35,7 @@ class AuthenticationMethodAdapter implements AuthenticationMethod
         $this->configuration = $configuration;
 
         if (isset($configuration['enabled'])) {
-            $this->isEnabledDelegate = (new EnablementFactory())->create($configuration['enabled']);
+            $this->isEnabledDelegate = (new EnablementFactory($this))->create($configuration['enabled']);
         }
     }
 

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Dreitier\Streamline\Authentication\Tests\Methods\Enablement;
 
 use Dreitier\Streamline\Authentication\Contracts\AuthenticationMethod;
+use Dreitier\Streamline\Authentication\Contracts\IsEnabled;
 use Dreitier\Streamline\Authentication\Contracts\Provider as ProviderContract;
+use Dreitier\Streamline\Authentication\Methods\Enablement\AuthenticationMethodAware;
 use Dreitier\Streamline\Authentication\Methods\Enablement\BooleanEnabler;
 use Dreitier\Streamline\Authentication\Methods\Enablement\EnablementFactory;
 use Dreitier\Streamline\Authentication\Methods\Factories\AuthenticationMethodFactory;
@@ -23,7 +25,7 @@ class EnablementFactoryTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->sut = new EnablementFactory();
+        $this->sut = new EnablementFactory(new AuthenticationMethodDummy());
     }
 
     /**
@@ -51,7 +53,8 @@ class EnablementFactoryTest extends TestCase
      * @test
      * @return void
      */
-    public function aRule_willBeDelegated() {
+    public function aRule_willBeDelegated()
+    {
         config(['app' => ['env' => 'a']]);
         $rule = 'in_environment:unit_test|other_ignored_condition';
         $r = $this->sut->create($rule);
@@ -60,6 +63,18 @@ class EnablementFactoryTest extends TestCase
         config(['app' => ['env' => 'unit_test']]);
         $r = $this->sut->create($rule);
         $this->assertTrue($r->isEnabled());
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function dynamicAuthenticationMethodEnabler_willBeCreated()
+    {
+        $sut = $this->sut->create(DynamicAuthenticationMethodEnablerDummy::class);
+
+        $this->assertTrue($sut->isEnabled());
+        $this->assertInstanceOf(AuthenticationMethodDummy::class, $sut->getAuthenticationMethod());
     }
 }
 
@@ -75,6 +90,26 @@ class AuthenticationMethodDummy implements AuthenticationMethod
     public function getProvider(): ?ProviderContract
     {
         // TODO: Implement getProvider() method.
+    }
+
+    public function isEnabled(): bool
+    {
+        return true;
+    }
+}
+
+class DynamicAuthenticationMethodEnablerDummy implements AuthenticationMethodAware, IsEnabled
+{
+    private AuthenticationMethod $authenticationMethod;
+
+    public function setAuthenticationMethod(AuthenticationMethod $context)
+    {
+        $this->authenticationMethod = $context;
+    }
+
+    public function getAuthenticationMethod(): AuthenticationMethod
+    {
+        return $this->authenticationMethod;
     }
 
     public function isEnabled(): bool

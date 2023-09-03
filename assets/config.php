@@ -75,7 +75,7 @@ return [
              */
             'find_by_key' => 'email',
             /**
-             * Just for demonstration purposes. By default, all registered authentication methods are enabled.
+             * Just for demonstration purposes. By default, all registered authentication methods are disabled.
              * You can also provide a custom callback function for the authentication method.
              */
             'enabled' => 'in_environment:dev,e2e,local,demo',

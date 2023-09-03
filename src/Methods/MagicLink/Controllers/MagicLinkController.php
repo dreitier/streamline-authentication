@@ -6,13 +6,12 @@ namespace Dreitier\Streamline\Authentication\Methods\MagicLink\Controllers;
 
 use Dreitier\Streamline\Authentication\Controllers\ProvidesAuthenticationMethods;
 use Dreitier\Streamline\Authentication\Events\MagicLinkRequested;
-use Dreitier\Streamline\Authentication\Methods\MagicLink\MagicLinkResult;
-use Dreitier\Streamline\Authentication\Methods\MagicLink\Mailable\LoginWithMagicLinkMailable;
 use Dreitier\Streamline\Authentication\Methods\MagicLinkMethod;
 use Dreitier\Streamline\Authentication\Repositories\Contracts\AuthenticationMethodRepository as AuthenticationMethodRepositoryContract;
 use Dreitier\Streamline\Authentication\Repositories\Contracts\UserRepository as UserRepositoryContract;
-use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Support\Facades\Mail;
+use Dreitier\Streamline\Authentication\Repositories\UserNotFoundException;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Session;
 
 class MagicLinkController
 {
@@ -31,8 +30,18 @@ class MagicLinkController
         $authenticationMethod = $this->requireAuthenticationMethod(MagicLinkMethod::class);
         $email = request()->get('email');
 
-        $result = $authenticationMethod->createMagicLinks($email, []);
-        MagicLinkRequested::dispatch($email, $result);
+        $executed = RateLimiter::attempt(
+            Session::getId(),
+            3,
+            function () use ($authenticationMethod, $email) {
+                try {
+                    $result = $authenticationMethod->createMagicLinks($email, []);
+                    MagicLinkRequested::dispatch($email, $result);
+                } catch (UserNotFoundException $e) {
+                    // swallow
+                }
+            }
+        );
 
         return redirect()->back()->with('message', 'You have received an email with a login link');
     }

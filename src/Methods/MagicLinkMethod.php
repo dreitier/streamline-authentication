@@ -10,6 +10,7 @@ use Dreitier\Streamline\Authentication\Methods\Adapters\ConfigurableAuthenticati
 use Dreitier\Streamline\Authentication\Methods\MagicLink\MagicLinkResult;
 use Dreitier\Streamline\Authentication\Package;
 use Dreitier\Streamline\Authentication\Repositories\Contracts\UserRepository as UserRepositoryContract;
+use Dreitier\Streamline\Authentication\Repositories\UserNotFoundException;
 
 class MagicLinkMethod extends ConfigurableAuthenticationMethodAdapter
 {
@@ -22,7 +23,7 @@ class MagicLinkMethod extends ConfigurableAuthenticationMethodAdapter
         $users = $this->userRepository->find(Package::configWithDefault('methods.magic_link_via_email.find_by_key'), $principal);
 
         if ($users->isEmpty()) {
-            throw new \Exception('Unable to find user(s) for principal');
+            throw new UserNotFoundException($principal);
         }
 
         $autoLoginUrls = AutoLoginUrlFactory::create($users);

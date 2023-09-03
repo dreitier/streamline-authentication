@@ -20,16 +20,17 @@ class SocialiteMethod extends AuthenticationMethodAdapter
 {
     private array $socialiteConnectionConfiguration = [];
 
-    private string $socialiteDriverName = '';
-
     private $socialiteDriver = null;
 
     private DriverAdapter $driverAdapter;
 
-    public function __construct(string $socialiteDriverName, DriverAdapter $driverAdapter, array $configuration = [], ?Provider $provider = null)
+    public function __construct(
+        public readonly string $socialiteDriverName,
+        DriverAdapter $driverAdapter,
+        array $configuration = [],
+        ?Provider $provider = null)
     {
         throw_if(empty($socialiteDriverName), SocialiteConfigurationException::class, 'Socialite driver must be configured');
-        $this->socialiteDriverName = $socialiteDriverName;
         $this->driverAdapter = $driverAdapter;
         $this->provider = $provider;
 
